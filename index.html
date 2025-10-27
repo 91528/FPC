@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F P C | Cocinas, Closets y Puertas con Estilo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00CED1',      // Cyan
+                        secondary: '#32CD32',    // Verde Limón
+                        accent: '#00CED1',       // Cyan
+                        dark: '#1a1a1a',
+                        light: '#2d2d2d',
+                    },
+                    fontFamily: {
+                        'sans': ['Poppins', 'sans-serif'],
+                        'heading': ['Montserrat', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'spin-slow': 'spin 4s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-animation {
+            animation: float 4s ease-in-out infinite;
+        }
+        .slider-transition {
+            transition: opacity 0.5s ease-in-out;
+        }
+        body {
+            background-color: #111827; /* Cambiado a bg-gray-900 */
+            color: #e5e5e5;
+        }
+        .text-shadow {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .text-shadow-lg {
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9), 0 0 15px rgba(0, 0, 0, 0.6);
+        }
+        /* Estilos para el modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            margin-top: 2%;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .close-modal:hover,
+        .close-modal:focus {
+            color: #bbb;
+            text-decoration: none;
+        }
+        .modal-caption {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+            color: #ccc;
+            padding: 10px 0;
+            height: 150px;
+        }
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            font-size: 20px;
+            padding: 16px;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        .modal-nav:hover {
+            background-color: rgba(0,0,0,0.8);
+        }
+        .modal-prev {
+            left: 15px;
+        }
+        .modal-next {
+            right: 15px;
+        }
+        
+        /* Efecto Resplandeciente Azul Neón */
+        .neon-container {
+            position: relative;
+            display: inline-block;
+            padding: 15px;
+        }
+        .neon-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 130%;
+            height: 130%;
+            background: 
+                radial-gradient(circle at center, 
+                    rgba(0, 247, 255, 0.8) 0%, 
+                    rgba(0, 195, 255, 0.5) 40%, 
+                    rgba(0, 100, 255, 0.2) 70%, 
+                    transparent 90%);
+            border-radius: 15px;
+            filter: blur(20px);
+            z-index: 0;
+            opacity: 0.7;
+        }
+        .rgb-image {
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 10px rgba(0, 247, 255, 0.6));
+        }
+        .rgb-image:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 15px rgba(0, 247, 255, 0.9));
+        }
+        
+        /* Loading states */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #00CED1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .debug-info {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-900 text-gray-300">
+    <!-- Debug info -->
+    <div id="debug-info" class="debug-info fixed top-4 right-4 z-50 hidden">
+        <div id="debug-content"></div>
+    </div>
+
+    <!-- Header y Navegación -->
+    <header class="bg-light shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo Animado -->
+                <div class="flex items-center space-x-3">
+                    <div class="logo-container relative">
+                        <img src="https://i.postimg.cc/Twnjnwr1/rgb-logo.png" alt="F P C" class="w-14 h-14 rounded-2xl float-animation">
+                    </div>
+                    <div>
+                        <h1 class="font-heading text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">F P C</h1>
+                        <p class="text-xs text-blue-400 -mt-1">SOLUCIONES INTEGRALES S.A.S</p>
+                    </div>
+                </div>
+
+                <!-- Menú de navegación -->
+                <nav class="hidden lg:flex space-x-8">
+                    <a href="#inicio" class="text-gray-300 hover:text-primary transition duration-300 font-medium border-b-2 border-transparent hover:border-primary pb-1">Inicio</a>
+                    <a href="#servicios" class="text-gray-300 hover:text-secondary transition duration-300 font-medium border-b-2 border-transparent hover:border-secondary pb-1">Servicios</a>
+                    <a href="#galeria" class="text-gray-300 hover:text-primary transition duration-300 font-medium border-b-2 border-transparent hover:border-primary pb-1">Galería</a>
+                    <a href="#nosotros" class="text-gray-300 hover:text-secondary transition duration-300 font-medium border-b-2 border-transparent hover:border-secondary pb-1">Nosotros</a>
+                    <a href="#contacto" class="text-gray-300 hover:text-primary transition duration-300 font-medium border-b-2 border-transparent hover:border-primary pb-1">Contacto</a>
+                </nav>
+
+                <!-- Botón contacto y menú móvil -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="window.open('https://wa.me/573113437536?text=Hola,%20me%20interesa%20solicitar%20una%20cotización%20de%20sus%20servicios', '_blank')" class="hidden md:block bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white font-medium py-2 px-6 rounded-full transition duration-300 transform hover:scale-105 shadow-lg">
+                        <i class="fab fa-whatsapp mr-2"></i>Cotizar Ahora
+                    </button>
+                    <button id="mobile-menu-button" class="lg:hidden text-gray-300 focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Menú móvil -->
+            <div id="mobile-menu" class="hidden lg:hidden py-4 border-t border-gray-700 bg-light">
+                <a href="#inicio" class="block py-3 text-gray-300 hover:text-primary transition duration-300 border-b border-gray-700 mobile-menu-link">Inicio</a>
+                <a href="#servicios" class="block py-3 text-gray-300 hover:text-secondary transition duration-300 border-b border-gray-700 mobile-menu-link">Servicios</a>
+                <a href="#galeria" class="block py-3 text-gray-300 hover:text-primary transition duration-300 border-b border-gray-700 mobile-menu-link">Galería</a>
+                <a href="#nosotros" class="block py-3 text-gray-300 hover:text-secondary transition duration-300 border-b border-gray-700 mobile-menu-link">Nosotros</a>
+                <a href="#contacto" class="block py-3 text-gray-300 hover:text-primary transition duration-300 mobile-menu-link">Contacto</a>
+                <button onclick="window.open('https://wa.me/573113437536?text=Hola,%20me%20interesa%20solicitar%20una%20cotización%20de%20sus%20servicios', '_blank')" class="w-full mt-4 bg-gradient-to-r from-primary to-secondary text-white font-medium py-3 px-6 rounded-full transition duration-300">
+                    <i class="fab fa-whatsapp mr-2"></i>Cotizar Ahora
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Slider Hero -->
+    <section id="inicio" class="relative overflow-hidden">
+        <div id="slider" class="relative h-96 md:h-screen/80">
+            <!-- Loading state para slider -->
+            <div id="slider-loading" class="absolute inset-0 flex items-center justify-center bg-gray-900">
+                <div class="text-center">
+                    <div class="spinner"></div>
+                    <p class="text-white mt-2">Cargando...</p>
+                    <button onclick="loadSliderData()" class="mt-4 bg-primary text-white px-4 py-2 rounded">Reintentar</button>
+                </div>
+            </div>
+            <!-- Slides se cargarán dinámicamente desde Google Sheets -->
+        </div>
+
+        <!-- Controles del Slider -->
+        <div class="absolute bottom-6 left-0 right-0 flex justify-center space-x-3 z-20">
+            <button id="slider-prev" class="bg-white/30 hover:bg-white/50 text-white rounded-full w-10 h-10 flex items-center justify-center transition duration-300">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button id="slider-next" class="bg-white/30 hover:bg-white/50 text-white rounded-full w-10 h-10 flex items-center justify-center transition duration-300">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Indicadores del Slider -->
+        <div id="slider-indicators" class="absolute bottom-6 right-6 flex space-x-2 z-20">
+            <!-- Se generarán dinámicamente -->
+        </div>
+    </section>
+
+    <!-- Servicios -->
+    <section id="servicios" class="py-16 bg-gray-900">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="font-heading text-3xl md:text-4xl font-bold text-blue-500 mb-4">Nuestros Servicios</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Ofrecemos soluciones integrales con la más alta calidad y profesionalismo para todos tus proyectos de muebles.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Servicio 1 -->
+                <div class="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-6 text-center transition duration-300 transform hover:-translate-y-2 hover:shadow-xl border border-primary/20">
+                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4" style="border: 2px solid #00FCFF; background: transparent;">
+                        <i class="fas fa-user-tie text-white text-2xl"></i>
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-white mb-3">Personal Calificado</h3>
+                    <p class="text-gray-400">Contamos con un equipo altamente especializado que posee más de 10 años de experiencia en el sector, garantizando resultados excepcionales en cada proyecto.</p>
+                </div>
+
+                <!-- Servicio 2 -->
+                <div class="bg-gradient-to-br from-secondary/10 to-primary/10 rounded-2xl p-6 text-center transition duration-300 transform hover:-translate-y-2 hover:shadow-xl border border-secondary/20">
+                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 float-animation" style="border: 2px solid #00FCFF; background: transparent;">
+                        <i class="fas fa-shield-alt text-white text-2xl"></i>
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-white mb-3">Garantía & Cumplimiento</h3>
+                    <p class="text-gray-400">Todos nuestros trabajos incluyen garantía completa y nos comprometemos a cumplir rigurosamente con los plazos establecidos, asegurando total seriedad y confianza.</p>
+                </div>
+
+                <!-- Servicio 3 -->
+                <div class="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-6 text-center transition duration-300 transform hover:-translate-y-2 hover:shadow-xl border border-primary/20">
+                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4" style="border: 2px solid #00FCFF; background: transparent;">
+                        <i class="fas fa-tools text-white text-2xl"></i>
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-white mb-3">Todas las Referencias</h3>
+                    <p class="text-gray-400">Trabajamos con cualquier modelo y referencia de mueble de todas las marcas del mercado, realizando montajes y desmontajes profesionales según tus necesidades.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Galería de Imágenes -->
+    <section id="galeria" class="py-16 bg-gray-900">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="font-heading text-3xl md:text-4xl font-bold text-white mb-4 text-shadow-lg">Proyectos Destacados</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Descubre nuestras creaciones más destacadas, diseñadas con estilo y precisión para transformar cualquier espacio.</p>
+            </div>
+
+            <!-- Loading state para galería -->
+            <div id="galeria-loading" class="flex justify-center items-center py-8">
+                <div class="text-center">
+                    <div class="spinner"></div>
+                    <p class="text-white mt-4">Cargando...</p>
+                    <button onclick="loadGaleriaData()" class="mt-4 bg-primary text-white px-4 py-2 rounded-full hover:bg-primary/80 transition duration-300">Reintentar</button>
+                </div>
+            </div>
+
+            <div id="galeria-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Imágenes se cargarán dinámicamente desde Google Sheets -->
+            </div>
+
+            <!-- Modal para la galería -->
+            <div id="gallery-modal" class="modal">
+                <span class="close-modal">&times;</span>
+                <div class="modal-nav modal-prev">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="modal-nav modal-next">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <img class="modal-content" id="modal-image">
+                <div id="modal-caption" class="modal-caption"></div>
+            </div>
+
+            <div class="text-center mt-12">
+                <button onclick="window.open('https://wa.me/573113437536?text=Hola,%20me%20interesa%20solicitar%20una%20cotización%20de%20sus%20servicios', '_blank')" class="bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white font-bold py-3 px-8 rounded-full transition duration-300 transform hover:scale-105 shadow-lg">
+                    <i class="fab fa-whatsapp mr-2"></i>Cotizar Ahora
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Nosotros -->
+    <section id="nosotros" class="py-16 bg-gray-900">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="font-heading text-3xl md:text-4xl font-bold text-white mb-6">Nuestra empresa </h2>
+                    <p class="text-gray-400 mb-6 text-lg">
+                        Con más de 5 años de experiencia en el sector, F P C Soluciones Integrales S.A.S, se ha consolidado como líder en diseño y fabricación de muebles personalizados. Nuestra pasión por crear espacios únicos nos impulsa a innovar constantemente.
+                    </p>
+                    <p class="text-gray-400 mb-6 text-lg">
+                        Nos especializamos en la creación de cocinas integrales, closets organizados, puertas y ventanas que combinan funcionalidad con diseño innovador. Cada proyecto es una oportunidad para transformar espacios y mejorar la calidad de vida de nuestros clientes.
+                    </p>
+                </div>
+                <div class="relative">
+                    <img src="https://i.postimg.cc/SN8RLxx4/grok-image-xjfqx3v.jpg" 
+                         alt="Nuestro equipo" class="rounded-2xl shadow-2xl">
+                    <div class="absolute -bottom-6 -left-6 w-24 h-24 bg-secondary rounded-2xl flex items-center justify-center">
+                        <i class="fas fa-award text-dark text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-16 bg-gradient-to-r from-primary to-secondary text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="font-heading text-3xl md:text-4xl font-bold mb-6">¿Listo para Transformar tu Espacio?</h2>
+            <p class="text-lg mb-8 max-w-2xl mx-auto">Contáctanos hoy mismo para una consulta gratuita and descubre cómo podemos hacer realidad tus ideas con colores vibrantes y diseños únicos.</p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <button onclick="window.open('https://wa.me/573113437536?text=Hola,%20me%20interesa%20solicitar%20una%20cotización%20de%20sus%20servicios', '_blank')" class="bg-white hover:bg-gray-100 text-primary font-bold py-3 px-8 rounded-full transition duration-300 transform hover:scale-105 shadow-lg">
+                    <i class="fab fa-whatsapp mr-2"></i>Cotizar Ahora
+                </button>
+                <button class="bg-transparent border-2 border-white hover:bg-white hover:text-primary font-bold py-3 px-8 rounded-full transition duration-300">
+                    <i class="fas fa-calendar mr-2"></i>Agendar Cita
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contacto" class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="mb-4">
+                        <!-- Imagen rectangular RGB con efecto azul neón -->
+                        <div class="neon-container">
+                            <div class="neon-glow"></div>
+                            <img src="https://i.postimg.cc/L5h7HjdX/1761495483188-removebg-preview.png" 
+                                 alt="F P C Soluciones Integrales" 
+                                 class="h-16 w-auto object-contain rgb-image">
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mb-4">Transformamos espacios con diseños vibrantes y materiales de la más alta calidad.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-primary transition duration-300">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-secondary transition duration-300">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://wa.me/573113437536" target="_blank" class="text-gray-400 hover:text-green-500 transition duration-300">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">Servicios</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition duration-300">Cocinas Integrales</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-secondary transition duration-300">Closets Organizados</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition duration-300">Puertas</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-secondary transition duration-300">Ventanas</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition duration-300">Muebles a Medida</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">Enlaces Rápidos</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#inicio" class="text-gray-400 hover:text-primary transition duration-300 mobile-menu-link">Inicio</a></li>
+                        <li><a href="#servicios" class="text-gray-400 hover:text-secondary transition duration-300 mobile-menu-link">Servicios</a></li>
+                        <li><a href="#galeria" class="text-gray-400 hover:text-primary transition duration-300 mobile-menu-link">Galería</a></li>
+                        <li><a href="#nosotros" class="text-gray-400 hover:text-secondary transition duration-300 mobile-menu-link">Nosotros</a></li>
+                        <li><a href="#contacto" class="text-gray-400 hover:text-primary transition duration-300 mobile-menu-link">Contacto</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">Contacto</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start space-x-3">
+                            <i class="fas fa-map-marker-alt text-primary mt-1"></i>
+                            <span class="text-gray-400">Av. Principal 123, Bogotá D.C, Calle 123</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <i class="fas fa-phone text-secondary"></i>
+                            <span class="text-gray-400">+1 (555) 123-4567</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <i class="fas fa-envelope text-primary"></i>
+                            <span class="text-gray-400">fpc-@fpcmuebles.com</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <i class="fab fa-whatsapp text-green-500"></i>
+                            <span class="text-gray-400">+57 311 3437536</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+    <p>&copy; <span id="currentYear"></span> - F P C Soluciones Inteligentes. Todos los derechos reservados. | Diseño y Construccion</p>
+</div>
+
+         <script>
+          document.getElementById("currentYear").textContent = new Date().getFullYear();
+             </script>
+              </div>
+             </footer>
+
+              <script>
+        // Configuración de Google Sheets
+        const SHEET_ID = '15nePc_3RJcGL6vd46cM9EkTpCzwS9k5VsmM6u73ooJI';
+        
+        // URLs alternativas para Google Sheets
+        const CSV_URL_SLIDER = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=slider`;
+        const CSV_URL_GALERIA = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=galeria`;
+        
+        // URLs alternativas (método 2)
+        const CSV_URL_SLIDER_ALT = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+        const CSV_URL_GALERIA_ALT = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1`;
+
+        // Variables globales
+        let currentSlide = 0;
+        let slides = [];
+        let galleryImages = [];
+
+        // Función para debug
+        function showDebugInfo(message) {
+            const debugDiv = document.getElementById('debug-info');
+            const debugContent = document.getElementById('debug-content');
+            debugContent.innerHTML = message;
+            debugDiv.classList.remove('hidden');
+            console.log('DEBUG:', message);
+        }
+
+        // Función para cargar datos CSV desde Google Sheets
+        async function loadCSVData(url, fallbackUrl = null) {
+            showDebugInfo(`Intentando cargar: ${url}`);
+            
+            try {
+                const response = await fetch(url);
+                showDebugInfo(`Respuesta: ${response.status} ${response.statusText}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                const csvText = await response.text();
+                showDebugInfo(`Datos recibidos: ${csvText.length} caracteres`);
+                
+                if (csvText.includes('Google Drive')) {
+                    throw new Error('Google Drive bloqueó la solicitud');
+                }
+                
+                return parseCSV(csvText);
+            } catch (error) {
+                showDebugInfo(`Error: ${error.message}`);
+                
+                // Intentar URL alternativa si está disponible
+                if (fallbackUrl) {
+                    showDebugInfo(`Intentando URL alternativa: ${fallbackUrl}`);
+                    return await loadCSVData(fallbackUrl);
+                }
+                
+                // Datos de respaldo en caso de error
+                return getFallbackData(url);
+            }
+        }
+
+        // Datos de respaldo
+        function getFallbackData(url) {
+            showDebugInfo('Usando datos de respaldo');
+            
+            if (url.includes('slider')) {
+                return [
+                    {
+                        titulo: 'Cocinas que',
+                        titulo_color: 'Inspiran',
+                        subtitulo: 'Diseños únicos y funcionales que transforman el corazón de tu hogar.',
+                        boton_texto: 'Ver Cocinas',
+                        imagen_url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80',
+                        alt_text: 'Cocina moderna'
+                    },
+                    {
+                        titulo: 'Closets',
+                        titulo_color: 'Inteligentes',
+                        subtitulo: 'Soluciones de almacenamiento que maximizan espacio y organización.',
+                        boton_texto: 'Ver Closets',
+                        imagen_url: 'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80',
+                        alt_text: 'Closet organizado'
+                    }
+                ];
+            } else if (url.includes('galeria')) {
+                return [
+                    {
+                        titulo: 'Cocina Moderna',
+                        subtitulo: 'Diseño elegante con acabados en madera.',
+                        imagen_url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1158&q=80',
+                        categoria: 'Cocina'
+                    },
+                    {
+                        titulo: 'Vestidor de Lujo',
+                        subtitulo: 'Organización óptima con iluminación LED.',
+                        imagen_url: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1180&q=80',
+                        categoria: 'Closet'
+                    },
+                    {
+                        titulo: 'Puerta Clásica',
+                        subtitulo: 'Elegancia atemporal para tu hogar.',
+                        imagen_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80',
+                        categoria: 'Puerta'
+                    },
+                    {
+                        titulo: 'Cocina Rústica',
+                        subtitulo: 'Calidez y estilo para tu espacio.',
+                        imagen_url: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80',
+                        categoria: 'Cocina'
+                    }
+                ];
+            }
+            return [];
+        }
+
+        // Función para parsear CSV
+        function parseCSV(csvText) {
+            const lines = csvText.split('\n').filter(line => line.trim() !== '');
+            
+            if (lines.length === 0) {
+                showDebugInfo('CSV vacío');
+                return [];
+            }
+            
+            // Parsear headers
+            const headers = lines[0].split(',').map(header => 
+                header.trim().replace(/"/g, '').toLowerCase()
+            );
+            
+            showDebugInfo(`Headers: ${headers.join(', ')}`);
+            
+            const data = [];
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                const values = [];
+                let current = '';
+                let inQuotes = false;
+                
+                // Parsear línea considerando comas dentro de comillas
+                for (let j = 0; j < line.length; j++) {
+                    const char = line[j];
+                    
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        values.push(current.trim().replace(/"/g, ''));
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                values.push(current.trim().replace(/"/g, ''));
+                
+                if (values.length === headers.length && values.some(v => v !== '')) {
+                    const item = {};
+                    headers.forEach((header, index) => {
+                        item[header] = values[index] || '';
+                    });
+                    data.push(item);
+                }
+            }
+            
+            showDebugInfo(`Datos parseados: ${data.length} registros`);
+            return data;
+        }
+
+        // Función para cargar slider desde Google Sheets
+        async function loadSliderData() {
+            const sliderContainer = document.getElementById('slider');
+            const indicatorsContainer = document.getElementById('slider-indicators');
+            const loadingElement = document.getElementById('slider-loading');
+            
+            // Mostrar loading
+            loadingElement.style.display = 'flex';
+            
+            const sliderData = await loadCSVData(CSV_URL_SLIDER, CSV_URL_SLIDER_ALT);
+            
+            // Ocultar loading
+            loadingElement.style.display = 'none';
+            
+            sliderContainer.innerHTML = '';
+            indicatorsContainer.innerHTML = '';
+            
+            if (sliderData.length === 0) {
+                sliderContainer.innerHTML = `
+                    <div class="absolute inset-0 flex items-center justify-center bg-gray-900">
+                        <div class="text-center text-white">
+                            <p>No se pudieron cargar los datos del slider</p>
+                            <p class="text-sm mt-2">Verifica que:</p>
+                            <ul class="text-sm text-left mt-2">
+                                <li>• La hoja se llame "slider"</li>
+                                <li>• Esté configurada como pública</li>
+                                <li>• Tenga datos en las columnas correctas</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            sliderData.forEach((slide, index) => {
+                // Crear slide
+                const slideElement = document.createElement('div');
+                slideElement.className = `slider-item absolute inset-0 w-full h-full flex items-center slider-transition ${index === 0 ? 'opacity-100' : 'opacity-0'}`;
+                
+                const colors = ['#00FCFF', '#EA00FF', '#07EB0C'];
+                const buttonColors = ['#07EB0C', '#00FCFF', '#EA00FF'];
+                const buttonTextColors = ['#1a1a1a', '#1a1a1a', 'white'];
+                
+                slideElement.innerHTML = `
+                    <div class="container mx-auto px-4 z-10">
+                        <div class="max-w-2xl">
+                            <h1 class="font-heading text-4xl md:text-6xl font-bold mb-6 text-white text-shadow-lg">
+                                ${slide.titulo || 'Título del Slide'} <span class="text-shadow-lg" style="color: ${colors[index % colors.length]};">${slide.titulo_color || 'Destacado'}</span>
+                            </h1>
+                            <p class="text-xl mb-8 text-white opacity-90 max-w-lg text-shadow">
+                                ${slide.subtitulo || 'Subtítulo del slide'}
+                            </p>
+                            <button class="font-bold py-3 px-8 rounded-full transition duration-300 transform hover:scale-105 shadow-lg" style="background-color: ${buttonColors[index % buttonColors.length]}; color: ${buttonTextColors[index % buttonTextColors.length]};">
+                                ${slide.boton_texto || 'Ver Más'}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-dark/80 to-transparent z-0"></div>
+                    <img src="${slide.imagen_url || 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80'}" 
+                         alt="${slide.alt_text || 'Imagen del slide'}" class="absolute inset-0 w-full h-full object-cover z-0">
+                `;
+                
+                sliderContainer.appendChild(slideElement);
+                
+                // Crear indicador
+                const indicator = document.createElement('button');
+                indicator.className = `slider-indicator w-3 h-3 bg-white rounded-full ${index === 0 ? 'opacity-100' : 'opacity-50'}`;
+                indicator.addEventListener('click', () => showSlide(index));
+                indicatorsContainer.appendChild(indicator);
+            });
+            
+            slides = document.querySelectorAll('.slider-item');
+            showDebugInfo(`Slider cargado: ${slides.length} slides`);
+            
+            // Inicializar slider
+            if (slides.length > 0) {
+                showSlide(0);
+            }
+        }
+
+        // Función para cargar galería desde Google Sheets
+        async function loadGaleriaData() {
+            const galeriaContainer = document.getElementById('galeria-container');
+            const loadingElement = document.getElementById('galeria-loading');
+            
+            // Mostrar loading
+            loadingElement.style.display = 'flex';
+            
+            const galeriaData = await loadCSVData(CSV_URL_GALERIA, CSV_URL_GALERIA_ALT);
+            
+            // Ocultar loading
+            loadingElement.style.display = 'none';
+            
+            galeriaContainer.innerHTML = '';
+            galleryImages = [];
+            
+            if (galeriaData.length === 0) {
+                galeriaContainer.innerHTML = `
+                    <div class="col-span-1 sm:col-span-2 lg:col-span-3 text-center text-white py-8">
+                        <p class="text-lg font-bold">No se pudieron cargar las imágenes</p>
+                        <p class="text-sm mt-2">Por favor, verifica que:</p>
+                        <ul class="text-sm text-left inline-block mt-2 space-y-1">
+                            <li>• La hoja se llame "galeria" (respetando minúsculas)</li>
+                            <li>• Esté configurada como pública ("Cualquier persona con el enlace")</li>
+                            <li>• Tenga las columnas: titulo, subtitulo, imagen_url</li>
+                        </ul>
+                    </div>
+                `;
+                showDebugInfo('No se encontraron datos de galería en Google Sheets');
+                return;
+            }
+            
+            galeriaData.forEach((item, index) => {
+                // Validar que los campos necesarios existan
+                if (!item.titulo || !item.subtitulo || !item.imagen_url) {
+                    showDebugInfo(`Imagen ${index + 1} incompleta: ${JSON.stringify(item)}`);
+                    return; // Saltar imágenes con datos incompletos
+                }
+
+                const galeriaElement = document.createElement('div');
+                galeriaElement.className = 'group relative overflow-hidden rounded-2xl shadow-lg bg-light transition duration-300 transform hover:scale-105 gallery-item';
+                galeriaElement.setAttribute('data-index', index);
+                
+                galeriaElement.innerHTML = `
+                    <img src="${item.imagen_url}" 
+                         alt="${item.titulo}" 
+                         class="w-full h-64 object-cover transition duration-500 group-hover:scale-110 cursor-pointer">
+                    <div class="p-4">
+                        <h3 class="text-white font-heading font-bold text-lg mb-1 text-shadow">${item.titulo}</h3>
+                        <p class="text-gray-300 text-sm">${item.subtitulo}</p>
+                    </div>
+                `;
+                
+                galeriaContainer.appendChild(galeriaElement);
+                
+                // Agregar a galería para modal
+                galleryImages.push({
+                    src: item.imagen_url,
+                    title: item.titulo,
+                    description: item.subtitulo
+                });
+            });
+            
+            showDebugInfo(`Imágenes cargadas: ${galleryImages.length} imágenes válidas`);
+            
+            // Re-inicializar event listeners para galería
+            initGalleryListeners();
+        }
+
+        // Funcionalidad del slider
+        function showSlide(index) {
+            if (!slides || slides.length === 0) return;
+            
+            slides.forEach(slide => {
+                slide.style.opacity = '0';
+            });
+            
+            const indicators = document.querySelectorAll('.slider-indicator');
+            indicators.forEach(indicator => {
+                indicator.style.opacity = '0.5';
+            });
+            
+            slides[index].style.opacity = '1';
+            if (indicators[index]) {
+                indicators[index].style.opacity = '1';
+            }
+            
+            currentSlide = index;
+        }
+
+        function nextSlide() {
+            if (!slides || slides.length === 0) return;
+            
+            let next = currentSlide + 1;
+            if (next >= slides.length) next = 0;
+            showSlide(next);
+        }
+
+        function prevSlide() {
+            if (!slides || slides.length === 0) return;
+            
+            let prev = currentSlide - 1;
+            if (prev < 0) prev = slides.length - 1;
+            showSlide(prev);
+        }
+
+        // Funcionalidad del modal para la galería
+        let currentImageIndex = 0;
+
+        function initGalleryListeners() {
+            const galleryItems = document.querySelectorAll('.gallery-item');
+            
+            galleryItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    currentImageIndex = index;
+                    openModal();
+                });
+            });
+        }
+
+        function openModal() {
+            const modal = document.getElementById('gallery-modal');
+            modal.style.display = 'block';
+            updateModalContent();
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('gallery-modal');
+            modal.style.display = 'none';
+        }
+
+        function updateModalContent() {
+            const modalImg = document.getElementById('modal-image');
+            const captionText = document.getElementById('modal-caption');
+            
+            if (galleryImages[currentImageIndex]) {
+                const currentImage = galleryImages[currentImageIndex];
+                modalImg.src = currentImage.src || 'https://via.placeholder.com/800x600?text=Imagen+no+disponible';
+                modalImg.alt = currentImage.title || 'Imagen';
+                
+                captionText.innerHTML = `
+                    <h3 class="text-white font-heading font-bold text-xl mb-2 text-shadow">${currentImage.title || 'Sin título'}</h3>
+                    <p class="text-gray-300">${currentImage.description || 'Sin descripción'}</p>
+                `;
+            } else {
+                showDebugInfo(`No hay datos para la imagen en el índice ${currentImageIndex}`);
+                modalImg.src = 'https://via.placeholder.com/800x600?text=Imagen+no+disponible';
+                modalImg.alt = 'Imagen no disponible';
+                captionText.innerHTML = `
+                    <h3 class="text-white font-heading font-bold text-xl mb-2 text-shadow">Error</h3>
+                    <p class="text-gray-300">No se pudo cargar la información de la imagen.</p>
+                `;
+            }
+        }
+
+        function showPrevImage() {
+            if (galleryImages.length === 0) return;
+            
+            currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+            updateModalContent();
+        }
+
+        function showNextImage() {
+            if (galleryImages.length === 0) return;
+            
+            currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+            updateModalContent();
+        }
+
+        // Inicialización cuando se carga la página
+        document.addEventListener('DOMContentLoaded', async function() {
+            showDebugInfo('Iniciando carga de datos...');
+            
+            // Cargar datos
+            await loadSliderData();
+            await loadGaleriaData();
+            
+            // Inicializar slider si hay slides
+            if (slides.length > 0) {
+                // Event listeners para controles del slider
+                document.getElementById('slider-next').addEventListener('click', nextSlide);
+                document.getElementById('slider-prev').addEventListener('click', prevSlide);
+                
+                // Auto slide cada 5 segundos
+                setInterval(nextSlide, 5000);
+            }
+            
+            // Event listeners para el modal
+            const modal = document.getElementById('gallery-modal');
+            const closeBtn = document.querySelector('.close-modal');
+            const prevBtn = document.querySelector('.modal-prev');
+            const nextBtn = document.querySelector('.modal-next');
+            
+            closeBtn.addEventListener('click', closeModal);
+            prevBtn.addEventListener('click', showPrevImage);
+            nextBtn.addEventListener('click', showNextImage);
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            // Navegación con teclado
+            document.addEventListener('keydown', (e) => {
+                if (modal.style.display === 'block') {
+                    if (e.key === 'Escape') {
+                        closeModal();
+                    } else if (e.key === 'ArrowLeft') {
+                        showPrevImage();
+                    } else if (e.key === 'ArrowRight') {
+                        showNextImage();
+                    }
+                }
+            });
+            
+            // Toggle del menú móvil
+            document.getElementById('mobile-menu-button').addEventListener('click', function() {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.toggle('hidden');
+            });
+
+            // Cerrar menú móvil al hacer clic en un enlace
+            document.querySelectorAll('.mobile-menu-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    const menu = document.getElementById('mobile-menu');
+                    menu.classList.add('hidden');
+                });
+            });
+
+            // Smooth scroll para enlaces del menú
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            showDebugInfo('Carga completada');
+        });
+    </script>
+</body>
+</html>
